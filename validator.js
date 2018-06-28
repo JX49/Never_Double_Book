@@ -85,6 +85,6 @@ for (var i = names.length - 1;i>=0; i--) {
   }
   
   function testTime(from, to) {
-    console.log(from + '-' + to + ': ' + test(from, to));
+  //  console.log(from + '-' + to + ': ' + test(from, to));
   }
 } })();
