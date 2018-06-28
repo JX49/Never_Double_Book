@@ -121,6 +121,7 @@ for (var i = names.length - 1;i>=0; i--) {
     
    alert("success, your booking was completed!");
 	return true;
+   	   
    
     
     
@@ -157,7 +158,7 @@ for (var i = names.length - 1;i>=0; i--) {
       //console.log(" previous booking in mins: " + previousFromTime + " - " + previousToTime)
       //console.log(" this booking in mins: " + myBookingFrom + " - " + myBookingTo)
       if ((myBookingFrom > previousFromTime && myBookingFrom < previousToTime) || (myBookingTo > previousFromTime && myBookingTo < previousToTime) ||(myBookingFrom <= previousFromTime && myBookingTo >= previousToTime)){
-       alert("caught ya!");
+       //alert("caught ya!");
         return false;
       }
     }
@@ -172,7 +173,7 @@ for (var i = names.length - 1;i>=0; i--) {
   }
   
   function testTime(from, to) {
-    console.log(from + '-' + to + ': ' + test(from, to));
+    //console.log(from + '-' + to + ': ' + test(from, to));
   }
 
 } })();
