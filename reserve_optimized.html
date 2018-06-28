@@ -1,0 +1,190 @@
+<!DOCTYPE HTML><html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+ <title>Member room choice</title> 
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+ 
+</head> 
+<body>
+ 
+ <div class="container">
+  <h1>Bookings for these rooms today</h1>
+  <div class ="row">
+   
+    
+  </div>
+ </div>
+ <div class="container-fluid">
+   <form method="post"  class="formgroup">
+      <label for="star-time">Start time:</label>
+       <input id="start-time" type="time" name="start-time" class="form-control bfh-timepicker" required>
+       <label for="end-time">End time</label>
+       <input id="end-time" type="time" name="end-time" class="form-control bfh-timepicker" required>
+       <label for="sel1">Select list:</label>
+        <select class="form-control" id="room" name="roomi" required>
+       
+          <option>green</option>
+   <option>red</option>
+   <option>sunshine</option>
+         
+        </select>
+     <label for="date">Date</label>
+       
+        <button id="book-button" type="submit" class="btn btn-primary btn-lg">book!</button>
+        
+  </form>
+  
+  <div class="col-sm-12">
+     <div id="choose-error" class="alert alert-danger alert-dismissable collapse">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">wrong username or password!</a>
+      </div>
+  </div>
+  </div>
+ 
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+<script>
+$(function(){
+
+
+
+
+ //Bookings from the server must be grouped together by room. If the rooms are retrieved by room name this
+//should not be an issue. Additionally, every avalible room should be listed with its increment. I assume a room with
+//no bookings has totTime and fromTime set as "00:00"
+//I contemplate using Duff's device, but I don't think that it is necessary here because the number of
+//iterations will be far below 1000. On a bad day I can't see this operating over more than 50 - 100 
+//bookings. I do however, think reversing the loops is a smart idea, which I have done where it is practical.
+//requires to use 24 hour clock time as inputs
+
+
+var toTimings =  ["15:30","12:30","13:20","00:00"]
+var fromTimings = ["13:30","10:30","12:00","00:00"]
+var names = ["green","green","sunshine","red"]
+var increments = ["30","30","5","10"]
+
+
+   
+  //jquery call that  initializes values from the user's input.
+  
+   
+    $('#book-button').click(function(event) {
+        event.preventDefault();
+
+   var start = $('#start-time').val();
+   var end = $('#end-time').val();
+   var room = $('#room').val();
+
+
+//var type used to ensure function closure.
+
+
+	var validate = ( function (startTime, endTime, roomName){
+
+   //console.log(start + " - " + end) use commented code for testing
+
+//thisInc is used to store a value for the given room's increment. Found will be true when the room is found
+// the for loop will find the last and then the first occurence of the room's indicies. This is why it is critical the be grouped together. 
+   var thisInc = -1;
+   var found = false;
+    var lengthMinusOne = 0;
+
+	return function () {
+   
+for (var i = names.length - 1;i>=0; i--) {
+         //console.log("here we go: " + room + ", names[i] = " + names[i] + ", index is: " + i )
+         if(room == names[i] && found == false){
+         var last = i;
+	  thisInc = increments[i];
+    console.log(thisInc)
+          found = true;
+         }
+         if(room != names[i] && found == true){
+          var first = i + 1;
+         }
+         if(room == names[i] && i == lengthMinusOne){
+          var first = i;
+          }
+          if(room != names[i] && i == lengthMinusOne && found == false){
+          console.log("all avalible rooms must be provided by the server")
+          }
+        }
+   
+// here we test if the room booking is valid
+// logic is solid and will verify if a room booking has a valid time increment and if overlaps any previous bookings
+//for the specific room
+//TODO: add exceptions
+   
+   if((test(start, end,last,first,thisInc) == true)){
+    
+    
+   alert("success, your booking was completed!");
+	return true;
+   
+    
+    
+    
+    
+    
+   }
+   else{
+    alert("that booking is invalid, please try again")
+	return false;
+   }
+   
+   function test(from, to,last,first,thisInc) {
+   
+	//console.log(last + " last - first " + first)
+
+    if(first == -1){
+	console.log("this should never happen");
+     return true;
+     
+    }
+    var myBookingFrom = toMins(from);
+     var myBookingTo = toMins(to);
+     var previousFromTime = 0;
+     var previousToTime = 0;
+	if(myBookingFrom % thisInc != 0 || myBookingTo % thisInc != 0)
+	{
+            alert("wrong increment!");
+            return false;
+	}
+
+    for (var i = first; i <= last; i++) {
+      previousFromTime = toMins(fromTimings[i]), previousToTime = toMins(toTimings[i]);
+      //console.log(" previous booking in mins: " + previousFromTime + " - " + previousToTime)
+      //console.log(" this booking in mins: " + myBookingFrom + " - " + myBookingTo)
+      if ((myBookingFrom > previousFromTime && myBookingFrom < previousToTime) || (myBookingTo > previousFromTime && myBookingTo < previousToTime) ||(myBookingFrom <= previousFromTime && myBookingTo >= previousToTime)){
+       alert("caught ya!");
+        return false;
+      }
+    }
+    //console.log("it truly works");
+    return true;
+  }
+  
+  function toMins(time) {
+    time = time + '';
+    var parts = time.split(':');
+    return (+parts[0] * 60 + +parts[1]);
+  }
+  
+  function testTime(from, to) {
+    console.log(from + '-' + to + ': ' + test(from, to));
+  }
+
+} })();
+
+validate(start,end,room);
+  
+  //click function closure
+ });
+
+ 
+ //function closure
+});
+</script>
+ 
+</body></html>
